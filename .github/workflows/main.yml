@@ -40,14 +40,19 @@ jobs:
 
       - name: Install Apache Tomcat
         run: |
-          TOMCAT_VERSION=10.1.16  # Change to your required version
+          TOMCAT_VERSION=10.1.17  # Use the latest available version
           TOMCAT_DIR=/opt/tomcat
+          TOMCAT_URL="https://dlcdn.apache.org/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz"
           
           sudo apt install -y wget unzip
-          sudo wget https://downloads.apache.org/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz -O /tmp/tomcat.tar.gz
+          
+          # Download and extract Tomcat
+          echo "Downloading Tomcat from: $TOMCAT_URL"
+          sudo wget -q $TOMCAT_URL -O /tmp/tomcat.tar.gz || { echo "Download failed! Check the version or URL."; exit 1; }
           sudo mkdir -p $TOMCAT_DIR
           sudo tar -xvzf /tmp/tomcat.tar.gz -C $TOMCAT_DIR --strip-components=1
           
+          # Set permissions
           sudo chmod +x $TOMCAT_DIR/bin/*.sh
           echo "Apache Tomcat Installed Successfully"
 
