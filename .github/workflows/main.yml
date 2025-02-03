@@ -55,6 +55,38 @@ jobs:
         with:
           name: WAR-File
           path: target/JavaLoginShowcase-1.0.0.war
+  deploy:
+    needs: JavaloginPracticeApp
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: WAR-File
+          path: ./artifact
+
+      - name: Install SSH & SSHPass
+        run: |
+          sudo apt update
+          sudo apt install -y sshpass
+
+      - name: Install Tomcat on Frontend VM
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }} << EOF
+          sudo apt update
+          sudo apt install -y tomcat9 tomcat9-admin tomcat9-common
+          sudo systemctl enable tomcat9
+          sudo systemctl start tomcat9
+          EOF
+
+      - name: Copy WAR to Frontend VM
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no ./artifact/JavaLoginShowcase-1.0.0.war ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }}:/var/lib/tomcat9/webapps/
+
+      - name: Restart Tomcat on Frontend VM
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }} "sudo systemctl restart tomcat9"
 
       # - name: Get Latest Tomcat Version
       #   run: |
