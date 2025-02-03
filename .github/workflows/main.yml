@@ -38,12 +38,18 @@ jobs:
       - name: Verify Maven Installation
         run: mvn -version
 
+      - name: Get Latest Tomcat Version
+        run: |
+          TOMCAT_MAJOR=10
+          TOMCAT_VERSION=$(curl -s https://downloads.apache.org/tomcat/tomcat-$TOMCAT_MAJOR/ | grep -oP '(?<=v)10\.\d+\.\d+' | sort -V | tail -1)
+          echo "Latest Tomcat Version: $TOMCAT_VERSION"
+          echo "TOMCAT_VERSION=$TOMCAT_VERSION" >> $GITHUB_ENV
+
       - name: Install Apache Tomcat
         run: |
-          TOMCAT_VERSION=10.1.17  # Use the latest available version
           TOMCAT_DIR=/opt/tomcat
-          TOMCAT_URL="https://dlcdn.apache.org/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz"
-          
+          TOMCAT_URL="https://downloads.apache.org/tomcat/tomcat-10/v${{ env.TOMCAT_VERSION }}/bin/apache-tomcat-${{ env.TOMCAT_VERSION }}.tar.gz"
+
           sudo apt install -y wget unzip
           
           # Download and extract Tomcat
@@ -64,3 +70,4 @@ jobs:
         run: |
           /opt/tomcat/bin/startup.sh
           echo "Tomcat Started"
+
