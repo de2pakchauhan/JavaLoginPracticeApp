@@ -84,44 +84,11 @@ jobs:
         run: |
           sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no ./artifact/JavaLoginShowcase-1.0.0.war ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }}:/var/lib/tomcat9/webapps/
 
-      - name: Restart Tomcat on Frontend VM
+      - name: Move WAR to Tomcat and Restart Service
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }} "sudo systemctl restart tomcat9"
-
-      # - name: Get Latest Tomcat Version
-      #   run: |
-      #     TOMCAT_MAJOR=10
-      #     TOMCAT_VERSION=$(curl -s https://downloads.apache.org/tomcat/tomcat-$TOMCAT_MAJOR/ | grep -oP '(?<=v)10\.\d+\.\d+' | sort -V | tail -1)
-      #     echo "Latest Tomcat Version: $TOMCAT_VERSION"
-      #     echo "TOMCAT_VERSION=$TOMCAT_VERSION" >> $GITHUB_ENV
-
-      # - name: Install Apache Tomcat
-      #   run: |
-      #     TOMCAT_DIR=/opt/tomcat
-      #     TOMCAT_URL="https://downloads.apache.org/tomcat/tomcat-10/v${{ env.TOMCAT_VERSION }}/bin/apache-tomcat-${{ env.TOMCAT_VERSION }}.tar.gz"
-
-      #     sudo apt install -y wget unzip
-          
-      #     echo "Downloading Tomcat from: $TOMCAT_URL"
-      #     sudo wget -q $TOMCAT_URL -O /tmp/tomcat.tar.gz || { echo "Download failed! Check the version or URL."; exit 1; }
-      #     sudo mkdir -p $TOMCAT_DIR
-      #     sudo tar -xvzf /tmp/tomcat.tar.gz -C $TOMCAT_DIR --strip-components=1
-          
-      #     # Fix permissions
-      #     sudo chmod -R 755 $TOMCAT_DIR
-      #     sudo chown -R $USER:$USER $TOMCAT_DIR
-      #     echo "Apache Tomcat Installed Successfully"
-
-      # - name: Verify Tomcat Installation
-      #   run: |
-      #     /opt/tomcat/bin/version.sh
-
-      # - name: Start Apache Tomcat
-      #   run: |
-      #     /opt/tomcat/bin/startup.sh
-      #     sleep 5  # Wait for Tomcat to initialize
-      #     /opt/tomcat/bin/version.sh  # Check if Tomcat is running
-      #     echo "Tomcat Started Successfully"
-
-
-
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }} << EOF
+          sudo mv /tmp/JavaLoginShowcase-1.0.0.war /var/lib/tomcat9/webapps/
+          sudo chown tomcat:tomcat /var/lib/tomcat9/webapps/JavaLoginShowcase-1.0.0.war
+          sudo chmod 644 /var/lib/tomcat9/webapps/JavaLoginShowcase-1.0.0.war
+          sudo systemctl restart tomcat9
+          EOF
