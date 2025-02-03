@@ -48,7 +48,7 @@ jobs:
 
       - name: Build WAR file
         run: mvn clean package
-        working-directory: ${{ github.workspace }}/JavaLoginPracticeApp
+        working-directory: ${{ github.workspace }}
 
       # - name: Get Latest Tomcat Version
       #   run: |
