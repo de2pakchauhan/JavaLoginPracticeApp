@@ -87,6 +87,6 @@ jobs:
           sudo mv /tmp/JavaLoginShowcase-1.0.0.war /var/lib/tomcat9/webapps/
           sudo chown tomcat:tomcat /var/lib/tomcat9/webapps/JavaLoginShowcase-1.0.0.war
           sudo chmod 644 /var/lib/tomcat9/webapps/JavaLoginShowcase-1.0.0.war
-          sudo $TOMCAT_HOME/bin/shutdown.sh
-          sudo $TOMCAT_HOME/bin/startup.sh
+          sudo /usr/share/tomcat9/bin/shutdown.sh
+          sudo /usr/share/tomcat9/bin/startup.sh
           EOF
