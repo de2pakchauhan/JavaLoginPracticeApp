@@ -82,13 +82,11 @@ jobs:
 
       - name: Deploy WAR
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }} << 'EOF'
-          # Copy the WAR file from GitHub Actions Runner to Frontend VM
-          cat > /tmp/JavaLoginShowcase-1.0.0.war << 'EOWAR'
-          $(cat ./artifact/JavaLoginShowcase-1.0.0.war)
-          EOWAR
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no ./artifact/JavaLoginShowcase-1.0.0.war ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }}:/tmp/
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }} << EOF
           sudo mv /tmp/JavaLoginShowcase-1.0.0.war /var/lib/tomcat9/webapps/
           sudo chown tomcat:tomcat /var/lib/tomcat9/webapps/JavaLoginShowcase-1.0.0.war
           sudo chmod 644 /var/lib/tomcat9/webapps/JavaLoginShowcase-1.0.0.war
-          sudo systemctl restart tomcat9
+          sudo $TOMCAT_HOME/bin/shutdown.sh
+          sudo $TOMCAT_HOME/bin/startup.sh
           EOF
