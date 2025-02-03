@@ -80,13 +80,13 @@ jobs:
           sudo systemctl start tomcat9
           EOF
 
-      - name: Copy WAR to Frontend VM
+      - name: Deploy WAR
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no ./artifact/JavaLoginShowcase-1.0.0.war ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }}:/var/lib/tomcat9/webapps/
-
-      - name: Move WAR to Tomcat and Restart Service
-        run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }} << EOF
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.FRONTEND_VM_IP }} << 'EOF'
+          # Copy the WAR file from GitHub Actions Runner to Frontend VM
+          cat > /tmp/JavaLoginShowcase-1.0.0.war << 'EOWAR'
+          $(cat ./artifact/JavaLoginShowcase-1.0.0.war)
+          EOWAR
           sudo mv /tmp/JavaLoginShowcase-1.0.0.war /var/lib/tomcat9/webapps/
           sudo chown tomcat:tomcat /var/lib/tomcat9/webapps/JavaLoginShowcase-1.0.0.war
           sudo chmod 644 /var/lib/tomcat9/webapps/JavaLoginShowcase-1.0.0.war
