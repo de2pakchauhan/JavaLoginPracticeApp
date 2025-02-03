@@ -38,6 +38,14 @@ jobs:
       - name: Verify Maven Installation
         run: mvn -version
 
+      - name: Install Maven
+        run: |
+          sudo apt install -y maven
+          echo "Maven Installation Completed"
+
+      - name: Verify Maven Installation
+        run: mvn -version
+
       - name: Get Latest Tomcat Version
         run: |
           TOMCAT_MAJOR=10
@@ -52,14 +60,14 @@ jobs:
 
           sudo apt install -y wget unzip
           
-          # Download and extract Tomcat
           echo "Downloading Tomcat from: $TOMCAT_URL"
           sudo wget -q $TOMCAT_URL -O /tmp/tomcat.tar.gz || { echo "Download failed! Check the version or URL."; exit 1; }
           sudo mkdir -p $TOMCAT_DIR
           sudo tar -xvzf /tmp/tomcat.tar.gz -C $TOMCAT_DIR --strip-components=1
           
-          # Set permissions
-          sudo chmod +x $TOMCAT_DIR/bin/*.sh
+          # Fix permissions
+          sudo chmod -R 755 $TOMCAT_DIR
+          sudo chown -R $USER:$USER $TOMCAT_DIR
           echo "Apache Tomcat Installed Successfully"
 
       - name: Verify Tomcat Installation
@@ -69,5 +77,9 @@ jobs:
       - name: Start Apache Tomcat
         run: |
           /opt/tomcat/bin/startup.sh
-          echo "Tomcat Started"
+          sleep 5  # Wait for Tomcat to initialize
+          /opt/tomcat/bin/version.sh  # Check if Tomcat is running
+          echo "Tomcat Started Successfully"
+
+
 
