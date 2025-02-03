@@ -50,6 +50,12 @@ jobs:
         run: mvn clean package
         working-directory: ${{ github.workspace }}
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WAR-File
+          path: target/JavaLoginShowcase-1.0.0.war
+
       # - name: Get Latest Tomcat Version
       #   run: |
       #     TOMCAT_MAJOR=10
